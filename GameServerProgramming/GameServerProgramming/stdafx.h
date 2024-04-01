@@ -5,7 +5,7 @@
 
 enum E_BOARD_TYPE {
 	E_EMPTY,
+	E_MYPLAYER,
 	E_PLAYER
 };
-
 

@@ -24,10 +24,8 @@ void Input::Update()
 	if (input) {
 		command[0] = _getch();
 		if (command[0] == -32) {
-			type = static_cast<char>(E_PACKET_TYPE::E_MOVE);
 			command[0] = _getch();
-		}
-		
+		}		
 	}
 }
 

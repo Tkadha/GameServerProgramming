@@ -12,7 +12,8 @@ const int RIGHT = 77;
 
 enum class E_PACKET_TYPE {
 	E_LOGIN = 0,
-	E_MOVE
+	E_CONNECT,
+	E_ONLINE
 };
 
 struct Pos {
@@ -26,6 +27,13 @@ struct Pos {
 		}
 		return *this;
 	}
+	bool operator==(const Pos& other) const {
+		return (x == other.x && y == other.y);
+
+	}
+	bool operator!=(const Pos& other) {
+		return !(*this == other);
+	}
 };
 
 #pragma pack (push,1)
@@ -34,13 +42,16 @@ class HEAD_Packet
 public:
 	short size;
 	char type;
+	int key;
+	int id;
+	int cnt;
 };
 class KEYDOWN_Packet: public HEAD_Packet {	
 public:
-	int key;
+	
 };
 class POS_Packet : public HEAD_Packet {
 public:
-	int x, y;
+	Pos pos;
 };
 #pragma pack (pop)

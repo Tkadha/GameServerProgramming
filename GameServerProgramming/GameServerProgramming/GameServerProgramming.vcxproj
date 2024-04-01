@@ -129,6 +129,7 @@
   <ItemGroup>
     <ClCompile Include="Board.cpp" />
     <ClCompile Include="Client.cpp" />
+    <ClCompile Include="Data.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Player.cpp" />
@@ -137,6 +138,7 @@
   <ItemGroup>
     <ClInclude Include="Board.h" />
     <ClInclude Include="Client.h" />
+    <ClInclude Include="Data.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="stdafx.h" />

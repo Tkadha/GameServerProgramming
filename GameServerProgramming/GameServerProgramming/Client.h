@@ -1,21 +1,12 @@
 #pragma once
 #include <WS2tcpip.h>
 
-
-
-#pragma pack (push,1)
-struct keydown_packet {
-	short size;
-	char type;
-	int key;
-};
-struct pos_packet {
-	short size;
-	char type;
-	Pos pos;
-};
-#pragma pack (pop)
-
+void CALLBACK send_callback(DWORD err, DWORD num_bytes, LPWSAOVERLAPPED over, DWORD flags);
+void CALLBACK recv_callback(DWORD err, DWORD num_bytes, LPWSAOVERLAPPED over, DWORD flags);
+extern POS_Packet pp;
+extern KEYDOWN_Packet kp;
+extern int id;
+extern bool login;
 class Client
 {
 public:
@@ -26,12 +17,12 @@ public:
 	void Close_Socket();
 	void Send();
 	void Recv();
-
 	static WSADATA WSAData;
 	static SOCKET s_socket;
 	static SOCKADDR_IN server_addr;
-	Pos pos;
+	static WSAOVERLAPPED s_over;
+	static WSABUF send_wsabuf[1];
+	static WSABUF recv_wsabuf[1];
 private:
-
 };
 

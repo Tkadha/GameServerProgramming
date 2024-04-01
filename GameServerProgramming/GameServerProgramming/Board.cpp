@@ -1,8 +1,9 @@
 #include "stdafx.h"
 #include <Windows.h>
+#include <string>
 #include "Board.h"
 #include "Input.h"
-
+#include "Data.h"
 int Board::board[Board_X][Board_Y];
 
 Board::Board()
@@ -23,24 +24,34 @@ void Board::Init()
 }
 
 void Board::Render()
+{	
+	std::string draw{};
+	for (int i = 0; i < Board_Y; ++i) {
+		for (int j = 0; j < Board_X; ++j) {
+			if (board[j][i] == E_BOARD_TYPE::E_EMPTY)
+				((i + j) % 2 == 0) ? draw += "бр" : draw += "бс";
+			else if (board[j][i] == E_BOARD_TYPE::E_PLAYER)
+				draw += "и▄";
+			else
+				draw += "и┘";
+		}
+		draw += '\n';
+	}
+	std::cout << draw;
+}
+
+void Board::Update()
 {
 	for (int i = 0; i < Board_Y; ++i) {
 		for (int j = 0; j < Board_X; ++j) {
-			switch (board[j][i])
-			{
-			case E_BOARD_TYPE::E_EMPTY:
-				((i + j) % 2 == 0) ? std::cout << "бр" : std::cout << "бс";
-				break;
-			case E_BOARD_TYPE::E_PLAYER:
-				std::cout << "и▄";
-				break;
-			default:
-				break;
-			}
+			board[j][i] = E_BOARD_TYPE::E_EMPTY;
 		}
-		std::cout << std::endl;
 	}
-	std::cout << std::endl;
+	for (auto& cl : players) {
+		cl.SetBoard_Player();
+	}
+	Pos ppos = players[0].Getpos();
+	board[ppos.x][ppos.y] = E_BOARD_TYPE::E_MYPLAYER;
 }
 
 

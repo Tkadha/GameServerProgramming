@@ -7,7 +7,7 @@ public:
 
 	static void Init();
 	static void Render();
-
+	static void Update();
 	static int board[Board_X][Board_Y];
 private:
 };
