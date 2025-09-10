@@ -3,8 +3,8 @@ constexpr int BUF_SIZE = 200;
 constexpr int NAME_SIZE = 20;
 constexpr int CHAT_SIZE = 350;
 
-constexpr int MAX_USER = 10000;
-constexpr int MAX_NPC = 200000;
+constexpr int MAX_USER = 100000;
+constexpr int MAX_NPC = 100000;
 constexpr int MAX_BLOCK = 40000;
 
 constexpr int W_WIDTH = 2000;
