@@ -4,7 +4,7 @@
 #include "DataBase.h"
 using namespace std;
 
-//CDataBase db;
+CDataBase db;
 array<SESSION, MAX_NPC + MAX_USER + MAX_BLOCK> objects;
 
 extern array<array<Sector, W_WIDTH / SECTOR_SIZE>, W_HEIGHT / SECTOR_SIZE> sectors;
@@ -53,30 +53,30 @@ void process_packet(int c_id, char* packet)
 				break;
 			}
 		if (!find) {
-			//{
-			//	if (!db.FindUserData(p->name)) 	// 없으면 생성
-			//		db.CreateUserData(p->name);
-			//	strcpy_s(objects[c_id]._name, p->name);
-			//	Data data = db.GetUserData(p->name);
-			//	objects[c_id].x = data.x;
-			//	objects[c_id].y = data.y;
-			//	if (p->tester == 1) {
-			//		objects[c_id].x = rand() % W_WIDTH;
-			//		objects[c_id].y = rand() % W_HEIGHT;
-			//	}
-			//	objects[c_id].hp = data.hp;
-			//	objects[c_id].max_hp = data.maxhp;
-			//	objects[c_id].level = data.level;
-			//	objects[c_id].exp = data.exp;
-			//}
 			{
+				if (!db.FindUserData(p->name)) 	// 없으면 생성
+					db.CreateUserData(p->name);
+				strcpy_s(objects[c_id]._name, p->name);
+				Data data = db.GetUserData(p->name);
+				objects[c_id].x = data.x;
+				objects[c_id].y = data.y;
+				if (p->tester == 1) {
+					objects[c_id].x = rand() % W_WIDTH;
+					objects[c_id].y = rand() % W_HEIGHT;
+				}
+				objects[c_id].hp = data.hp;
+				objects[c_id].max_hp = data.maxhp;
+				objects[c_id].level = data.level;
+				objects[c_id].exp = data.exp;
+			}
+			/*{
 				objects[c_id].x = 1;
 				objects[c_id].y = 1;
 				objects[c_id].hp = 10;
 				objects[c_id].max_hp = 10;
 				objects[c_id].level = 1;
 				objects[c_id].exp = 0;
-			}
+			}*/
 			objects[c_id].visual = MARIO;
 			objects[c_id].atk = objects[c_id].level;
 			objects[c_id].healing = false;
@@ -540,8 +540,8 @@ int API_ChangeStat(lua_State* L)
 	if (objects[user_id].hp - atk > 0) {
 		objects[user_id].hp -= atk;
 		lua_pop(L, 4);
-		//db.UpdateUserData(objects[user_id]._name, { objects[user_id].x,objects[user_id].y,objects[user_id].hp,
-		//	objects[user_id].max_hp ,objects[user_id].level ,objects[user_id].exp });
+		db.UpdateUserData(objects[user_id]._name, { objects[user_id].x,objects[user_id].y,objects[user_id].hp,
+			objects[user_id].max_hp ,objects[user_id].level ,objects[user_id].exp });
 		objects[user_id].send_stat_change_packet();
 		char mess[CHAT_SIZE];
 		sprintf_s(mess,sizeof(mess), "%s의 공격으로 %d의 데미지를 입었습니다.", objects[my_id]._name, objects[my_id].atk);
@@ -561,8 +561,8 @@ int API_ChangeStat(lua_State* L)
 		objects[user_id].y = 1;
 		objects[user_id].healing = false;
 
-		//db.UpdateUserData(objects[user_id]._name, { objects[user_id].x,objects[user_id].y,objects[user_id].hp,
-		//	objects[user_id].max_hp ,objects[user_id].level ,objects[user_id].exp });
+		db.UpdateUserData(objects[user_id]._name, { objects[user_id].x,objects[user_id].y,objects[user_id].hp,
+			objects[user_id].max_hp ,objects[user_id].level ,objects[user_id].exp });
 
 		lua_pop(L, 4);
 		objects[user_id].set_sector();
@@ -780,7 +780,7 @@ void db_update()
 	while (true) {
 		for (int i = USER_START; i < USER_START + MAX_USER; ++i) {
 			if (objects[i]._state != ST_INGAME) continue;
-			//db.UpdateUserData(objects[i]._name, { objects[i].x,objects[i].y,objects[i].hp,objects[i].max_hp ,objects[i].level ,objects[i].exp });
+			db.UpdateUserData(objects[i]._name, { objects[i].x,objects[i].y,objects[i].hp,objects[i].max_hp ,objects[i].level ,objects[i].exp });
 		}
 		this_thread::sleep_for(std::chrono::seconds(5));
 	}
@@ -807,7 +807,7 @@ int main()
 	AcceptEx(g_s_socket, g_c_socket, g_a_over._send_buf, 0, addr_size + 16, addr_size + 16, 0, &g_a_over._over);
 
 	cout << "DataBase Conneting begin\n";
-	//db.InitializeDB();
+	db.InitializeDB();
 	cout << "DataBase Conneting end\n";
 	Initialize_block();
 	Initialize_npc();
@@ -826,6 +826,6 @@ int main()
 	db_thread.join();
 	closesocket(g_s_socket);
 
-	//db.CloseDB();
+	db.CloseDB();
 	WSACleanup();
 }
