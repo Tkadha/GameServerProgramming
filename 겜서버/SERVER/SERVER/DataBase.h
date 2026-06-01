@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <sqlext.h>  
 
 
@@ -9,6 +9,13 @@ struct Data {
     int level;
     int exp;
 };
+
+struct DB_TASK {
+    char name[20];
+    short x, y;
+    int hp, max_hp, level, exp;
+};
+
 class CDataBase
 {
 public:

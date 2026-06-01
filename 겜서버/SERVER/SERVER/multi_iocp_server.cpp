@@ -1,4 +1,5 @@
-#include <cmath>
+ï»¿#include <cmath>
+#include <concurrent_queue.h>
 #include "SESSION.h"
 #include "EVENT.h"
 #include "DataBase.h"
@@ -14,6 +15,7 @@ extern HANDLE h_iocp;
 extern array<array<char, W_WIDTH>, W_HEIGHT> blocks;
 
 concurrency::concurrent_priority_queue<EVENT> g_event_queue;
+concurrency::concurrent_queue<DB_TASK> g_db_queue;
 
 void add_timer(int id, EVENT_TYPE type, int ms, int p_id)
 {
@@ -54,7 +56,7 @@ void process_packet(int c_id, char* packet)
 			}
 		if (!find) {
 			{
-				if (!db.FindUserData(p->name)) 	// ¾øÀ¸¸é »ı¼º
+				if (!db.FindUserData(p->name)) 	// ì—†ìœ¼ë©´ ìƒì„±
 					db.CreateUserData(p->name);
 				strcpy_s(objects[c_id]._name, p->name);
 				Data data = db.GetUserData(p->name);
@@ -215,7 +217,7 @@ void process_packet(int c_id, char* packet)
 				if (pl->hp - objects[c_id].atk > 0) {
 					pl->hp -= objects[c_id].atk;
 					char mess[CHAT_SIZE];
-					sprintf_s(mess, sizeof(mess), "%s¿¡°Ô %dÀÇ ¸¸Å­ µ¥¹ÌÁö¸¦ ÀÔÇû½À´Ï´Ù.", pl->_name, objects[c_id].atk);
+					sprintf_s(mess, sizeof(mess), "%sì—ê²Œ %dì˜ ë§Œí¼ ë°ë¯¸ì§€ë¥¼ ì…í˜”ìŠµë‹ˆë‹¤.", pl->_name, objects[c_id].atk);
 					objects[c_id].send_chat_packet(*pl, mess, "system");
 				}
 				else {
@@ -230,7 +232,7 @@ void process_packet(int c_id, char* packet)
 						objects[c_id].hp = objects[c_id].max_hp;
 						objects[c_id].send_stat_change_packet();
 						char mess[CHAT_SIZE];
-						sprintf_s(mess, sizeof(mess), "·¹º§¾÷ Çß½À´Ï´Ù.");
+						sprintf_s(mess, sizeof(mess), "ë ˆë²¨ì—… í–ˆìŠµë‹ˆë‹¤.");
 						objects[c_id].send_chat_packet(*pl, mess, "system");
 					}
 
@@ -241,7 +243,7 @@ void process_packet(int c_id, char* packet)
 					pl->hp = pl->max_hp;
 					objects[c_id].send_stat_change_packet();
 					char mess[CHAT_SIZE];
-					sprintf_s(mess, sizeof(mess), "%sÀ»(¸¦) Àâ¾Æ¼­ %dÀÇ °æÇèÄ¡¸¦ È¹µæÇß½À´Ï´Ù.", pl->_name, reward_exp);
+					sprintf_s(mess, sizeof(mess), "%sì„(ë¥¼) ì¡ì•„ì„œ %dì˜ ê²½í—˜ì¹˜ë¥¼ íšë“í–ˆìŠµë‹ˆë‹¤.", pl->_name, reward_exp);
 					objects[c_id].send_chat_packet(*pl, mess, "system");
 					objects[c_id].send_remove_object_packet(*pl);
 					add_timer(pl->_id, EV_INVISIBLE, 30000, -1);
@@ -461,7 +463,7 @@ void worker_thread()
 			break;
 		case OP_WAY_MOVE: {
 			if (true == player_exist(static_cast<int>(key)) && !objects[key].invisible) {
-				if (objects[key].type == AGRO) {	// a* ¾Ë°í¸®Áò
+				if (objects[key].type == AGRO) {	// a* ì•Œê³ ë¦¬ì¦˜
 					objects[key].do_way_move(objects[ex_over->_ai_target_obj]);
 
 					OVER_EXP* exover = new OVER_EXP;
@@ -540,11 +542,15 @@ int API_ChangeStat(lua_State* L)
 	if (objects[user_id].hp - atk > 0) {
 		objects[user_id].hp -= atk;
 		lua_pop(L, 4);
-		db.UpdateUserData(objects[user_id]._name, { objects[user_id].x,objects[user_id].y,objects[user_id].hp,
-			objects[user_id].max_hp ,objects[user_id].level ,objects[user_id].exp });
+		DB_TASK task;
+		strcpy_s(task.name, objects[user_id]._name);
+		task.x = objects[user_id].x; task.y = objects[user_id].y;
+		task.hp = objects[user_id].hp; task.max_hp = objects[user_id].max_hp;
+		task.level = objects[user_id].level; task.exp = objects[user_id].exp;
+		g_db_queue.push(task);
 		objects[user_id].send_stat_change_packet();
 		char mess[CHAT_SIZE];
-		sprintf_s(mess,sizeof(mess), "%sÀÇ °ø°İÀ¸·Î %dÀÇ µ¥¹ÌÁö¸¦ ÀÔ¾ú½À´Ï´Ù.", objects[my_id]._name, objects[my_id].atk);
+		sprintf_s(mess,sizeof(mess), "%sì˜ ê³µê²©ìœ¼ë¡œ %dì˜ ë°ë¯¸ì§€ë¥¼ ì…ì—ˆìŠµë‹ˆë‹¤.", objects[my_id]._name, objects[my_id].atk);
 		objects[user_id].send_chat_packet(objects[my_id], mess, "system");
 		if(!objects[user_id].healing)
 			add_timer(user_id, EV_HEAL, 5000, 0);
@@ -561,8 +567,12 @@ int API_ChangeStat(lua_State* L)
 		objects[user_id].y = 1;
 		objects[user_id].healing = false;
 
-		db.UpdateUserData(objects[user_id]._name, { objects[user_id].x,objects[user_id].y,objects[user_id].hp,
-			objects[user_id].max_hp ,objects[user_id].level ,objects[user_id].exp });
+		DB_TASK task;
+		strcpy_s(task.name, objects[user_id]._name);
+		task.x = objects[user_id].x; task.y = objects[user_id].y;
+		task.hp = objects[user_id].hp; task.max_hp = objects[user_id].max_hp;
+		task.level = objects[user_id].level; task.exp = objects[user_id].exp;
+		g_db_queue.push(task);
 
 		lua_pop(L, 4);
 		objects[user_id].set_sector();
@@ -598,7 +608,7 @@ int API_ChangeStat(lua_State* L)
 				}
 		}
 		char mess[CHAT_SIZE];
-		sprintf_s(mess, sizeof(mess), "%sÀÇ °ø°İÀ¸·Î »ç¸ÁÇß½À´Ï´Ù...", objects[my_id]._name);
+		sprintf_s(mess, sizeof(mess), "%sì˜ ê³µê²©ìœ¼ë¡œ ì‚¬ë§í–ˆìŠµë‹ˆë‹¤...", objects[my_id]._name);
 		objects[user_id].send_chat_packet(objects[my_id], mess, "system");
 		objects[user_id].send_move_packet(objects[user_id]);
 
@@ -726,7 +736,7 @@ void do_timer()
 			EVENT ev;
 			if (g_event_queue.try_pop(ev)) {
 				if (ev.wakeup_time < system_clock::now()) {
-					if (ev.e_type == EV_HEAL) {	// 5ÃÊ¸¶´Ù Ã¼·Â ¸®Á¨
+					if (ev.e_type == EV_HEAL) {	// 5ì´ˆë§ˆë‹¤ ì²´ë ¥ ë¦¬ì  
 						if (objects[ev.obj_id].hp + objects[ev.obj_id].max_hp / 10 < objects[ev.obj_id].max_hp) {
 							objects[ev.obj_id].hp += objects[ev.obj_id].max_hp / 10;
 							objects[ev.obj_id].send_stat_change_packet();
@@ -738,7 +748,7 @@ void do_timer()
 							objects[ev.obj_id].healing = false;
 						}
 					}
-					else if (ev.e_type == EV_INVISIBLE) {	// ºÎÈ°
+					else if (ev.e_type == EV_INVISIBLE) {	// ë¶€í™œ
 						objects[ev.obj_id].invisible = false;
 						OVER_EXP* ov = new OVER_EXP;
 						ov->_comp_type = OP_REGEN;
@@ -777,12 +787,30 @@ void do_timer()
 
 void db_update()
 {
+	using namespace std::chrono;
+	auto last_save_time = system_clock::now();
+
 	while (true) {
-		for (int i = USER_START; i < USER_START + MAX_USER; ++i) {
-			if (objects[i]._state != ST_INGAME) continue;
-			db.UpdateUserData(objects[i]._name, { objects[i].x,objects[i].y,objects[i].hp,objects[i].max_hp ,objects[i].level ,objects[i].exp });
+		DB_TASK task;
+		while (g_db_queue.try_pop(task)) {
+			db.UpdateUserData(task.name, { task.x, task.y, task.hp, task.max_hp, task.level, task.exp });
 		}
-		this_thread::sleep_for(std::chrono::seconds(5));
+
+		auto current_time = system_clock::now();
+		if (duration_cast<seconds>(current_time - last_save_time).count() >= 5) {
+			for (int i = USER_START; i < USER_START + MAX_USER; ++i) {
+				if (objects[i]._state != ST_INGAME) continue;
+
+				db.UpdateUserData(objects[i]._name, {
+					objects[i].x, objects[i].y,
+					objects[i].hp, objects[i].max_hp,
+					objects[i].level, objects[i].exp
+					});
+			}
+			last_save_time = current_time;
+		}
+
+		std::this_thread::sleep_for(10ms);
 	}
 }
 
