@@ -18,11 +18,12 @@ IOCP 서버 위에 섹터 관리, DB 연동, Lua 스크립트 AI 등 MMORPG의 �
 | 서버 CPU 점유율 | 고부하 상황에서 **5% 미만** |
 | 시야 처리 연산량 (섹터 적용, 전역 비교 대비) | **95% 이상 감소** |
 
-| 스트레스 테스트 | 서버 CPU 점유율 |
+|  |  |
 | --- | --- |
-| <img width="635" height="407" alt="stress_test" src="https://github.com/user-attachments/assets/a5b0d26b-3555-424b-afd1-bb46e7cb1339" />
- | <img width="715" height="117" alt="stress_test_cpu" src="https://github.com/user-attachments/assets/65f853fd-903f-46f1-a24b-558f588c852d" />
- |
+| **스트레스 테스트** | <img width="635" height="407" alt="stress_test" src="https://github.com/user-attachments/assets/a5b0d26b-3555-424b-afd1-bb46e7cb1339" /> |
+| **서버 CPU 점유율** | <img width="715" height="117" alt="stress_test_cpu" src="https://github.com/user-attachments/assets/65f853fd-903f-46f1-a24b-558f588c852d" /> |
+
+ 
 
 > 테스트 환경: Intel Core i7-14700KF (20 threads), RAM 64GB, Windows 11
 
