@@ -6,7 +6,8 @@ IOCP 서버 위에 섹터 관리, DB 연동, Lua 스크립트 AI 등 MMORPG의 �
 - **개발 인원**: 1명
 - **담당**: 기획, 서버 구축, 데이터베이스 연동, 콘텐츠 제작
 
-![인게임]<img width="756" height="502" alt="ingame" src="https://github.com/user-attachments/assets/f756840a-09ea-4b2a-a022-7604752c166e" />
+<img width="756" height="502" alt="ingame" src="https://github.com/user-attachments/assets/f756840a-09ea-4b2a-a022-7604752c166e" />
+[인게임]
 
 
 ## 주요 성과
@@ -19,8 +20,8 @@ IOCP 서버 위에 섹터 관리, DB 연동, Lua 스크립트 AI 등 MMORPG의 �
 
 | 스트레스 테스트 | 서버 CPU 점유율 |
 | --- | --- |
-| ![스트레스 테스트]<img width="635" height="407" alt="stress_test" src="https://github.com/user-attachments/assets/a5b0d26b-3555-424b-afd1-bb46e7cb1339" />
- | ![CPU 점유율]<img width="715" height="117" alt="stress_test_cpu" src="https://github.com/user-attachments/assets/65f853fd-903f-46f1-a24b-558f588c852d" />
+| <img width="635" height="407" alt="stress_test" src="https://github.com/user-attachments/assets/a5b0d26b-3555-424b-afd1-bb46e7cb1339" />
+ | <img width="715" height="117" alt="stress_test_cpu" src="https://github.com/user-attachments/assets/65f853fd-903f-46f1-a24b-558f588c852d" />
  |
 
 > 테스트 환경: Intel Core i7-14700KF (20 threads), RAM 64GB, Windows 11
